@@ -28,17 +28,30 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('YOUR_CHATGPT_ENDPOINT', {
-        messages: [...messages, userMessage]
-      }, {
+      const embedding = await axios.post('https://api.edenai.run/v2/text/embeddings', {
         headers: {
-          'Authorization': 'Bearer YOUR_API_KEY',
-          'Content-Type': 'application/json'
+          accept: 'application/json',
+          'content-type': 'application/json',
+          authorization: process.env.REACT_APP_EMBEDDING_API,
+          providers: ['	1536__text-embedding-ada-002'],
+          texts: [userMessage.content]
+        },
+        body: {
+          body: JSON.stringify({
+            response_as_dict: true,
+            attributes_as_list: false,
+            show_base_64: true,
+            show_original_response: false
+          })
         }
       });
+    
+    const response = await axios.post('https://api.edenai.run/v2/text/embeddings', {
 
-      const assistantMessage = response.data.choices[0].message;
-      setMessages(prevMessages => [...prevMessages, assistantMessage]);
+    });
+
+    const assistantMessage = response.data.choices[0].message;
+    setMessages(prevMessages => [...prevMessages, assistantMessage]);
     } catch (error) {
       console.error('Error:', error);
     } finally {
