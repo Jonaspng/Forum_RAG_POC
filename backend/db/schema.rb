@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_08_23_072448) do
+ActiveRecord::Schema[7.2].define(version: 2024_08_28_150245) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "vector"
@@ -18,5 +18,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_23_072448) do
   create_table "forum_data", force: :cascade do |t|
     t.vector "embedding", limit: 1536
     t.jsonb "data", default: {}
+    t.index ["embedding"], name: "index_forum_data_on_embedding", opclass: :vector_cosine_ops, using: :hnsw
   end
 end

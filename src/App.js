@@ -18,6 +18,35 @@ function App() {
     inputRef.current.focus();
   }, []);
 
+  const fetchEmbedding = async (question) => {
+    const options = {
+      method: 'POST',
+      url: 'https://api.edenai.run/v2/text/embeddings',
+      headers: {
+        accept: 'application/json',
+        'content-type': 'application/json',
+        authorization: process.env.REACT_APP_EMBEDDING_API
+      },
+      data: {
+        response_as_dict: true,
+        attributes_as_list: false,
+        show_base_64: true,
+        show_original_response: false,
+        providers: ['openai/1536__text-embedding-ada-002'],
+        texts: [question]
+      }
+    };
+  
+    try {
+      const response = await axios.request(options);
+      const result = response.data;  // Store the result in a const
+      console.log(result);  // Use the result as needed
+      return result;  // Optionally return the result for further use
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const sendMessage = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -27,31 +56,19 @@ function App() {
     setInput('');
     setIsLoading(true);
 
+    const embedding = await fetchEmbedding(userMessage.content);
     try {
-      const embedding = await axios.post('https://api.edenai.run/v2/text/embeddings', {
-        headers: {
-          accept: 'application/json',
-          'content-type': 'application/json',
-          authorization: process.env.REACT_APP_EMBEDDING_API,
-          providers: ['	1536__text-embedding-ada-002'],
-          texts: [userMessage.content]
-        },
-        body: {
-          body: JSON.stringify({
-            response_as_dict: true,
-            attributes_as_list: false,
-            show_base_64: true,
-            show_original_response: false
-          })
-        }
+      const nearest_qna = await axios.post('http://localhost:3000/forum_data', {
+        question_embedding: embedding['openai/1536__text-embedding-ada-002']['items'][0]['embedding']
       });
-    
-    const response = await axios.post('https://api.edenai.run/v2/text/embeddings', {
+      console.log(nearest_qna)
+      let assistantMessage = nearest_qna.data.map((item, index) => `${index + 1}) ${item.data.question}`)
+        .join('\n');
+      
+      console.log(assistantMessage)
+      assistantMessage = "Here are the semantically nearest questions that I found: \n" + assistantMessage
 
-    });
-
-    const assistantMessage = response.data.choices[0].message;
-    setMessages(prevMessages => [...prevMessages, assistantMessage]);
+      setMessages(prevMessages => [...prevMessages, { role: 'assistant', content: assistantMessage }]);
     } catch (error) {
       console.error('Error:', error);
     } finally {

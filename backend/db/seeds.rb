@@ -5,13 +5,15 @@ require 'json'
 
 csv_file_path = Rails.root.join('lib', 'seeds', 'forum_posts_json.csv')
 
+# Clear the forum_data table
+ForumData.delete_all
+
 CSV.foreach(csv_file_path, headers: true) do |row|
   # Parse the JSON object from the CSV row
   data = JSON.parse(row['json_data'])
-  embedding = data["embedding"]
-  data.delete("embedding")
+  embedding = data["question_embedding"]
+  data.delete("question_embedding")
 
-  # Assuming you have a User model with name, email, and age attributes
   ForumData.create!(
     embedding: embedding,
     data: data

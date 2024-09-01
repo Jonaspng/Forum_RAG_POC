@@ -124,6 +124,10 @@ button svg {
   animation-delay: 0.4s;
 }
 
+.message-content {
+  white-space: pre-line;
+}
+
 @keyframes typing {
   0% {
     transform: translateY(0px);
