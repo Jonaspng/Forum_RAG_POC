@@ -7,25 +7,25 @@ class ForumDataController < ApplicationController
   @@llm_system_message = <<~TEXT
     You are an intelligent AI forum-answering agent tasked with assisting students by providing accurate and relevant answers to their queries based on the information available in the knowledge base. Here's how you should operate:
 
-    1. **Process the Query:**
+    1. Process the Query:
       - When a student submits a question, first analyze the query and search the provided knowledge base for relevant information.
 
-    2. **Provide an Answer:**
+    2. Provide an Answer:
       - If the knowledge base contains sufficient information to address the student's question, craft a clear and helpful response based on that information.
       - Ensure your response is detailed, accurate, and easy to understand.
+      - Do not show students the citation of source information from knowledge base.
 
-    3. **Handle Insufficient Information:**
+    3. Handle Insufficient Information:
       - If the knowledge base does not contain enough information to provide a satisfactory answer, inform the student that their question has been noted and that a teaching staff member will get back to them with an answer.
       - Use the following message template in this case:
         ```
         "I currently don't have enough information to answer your question. Please wait while a teaching staff member reviews your query and provides a detailed response."
         ```
-    4. **Maintain Professionalism:**
+    4. Maintain Professionalism:
       - Always maintain a professional and polite tone.
       - Be responsive and considerate of the student's needs, ensuring they feel supported.
 
     Your primary goal is to provide accurate and timely assistance while ensuring that students are aware of the next steps if their questions cannot be answered immediately.
-
   TEXT
 
   @@llm_knowledge_base_prompt = <<~TEXT
@@ -63,8 +63,7 @@ class ForumDataController < ApplicationController
     @data = ForumData.nearest_neighbors(:embedding, question_embedding, distance: "cosine")
             .first(5)
             .pluck(:data)
-    puts @data
-
+            
     # provide search result to LLM
     llm_url = URI("https://api.edenai.run/v2/text/chat")
     request = Net::HTTP::Post.new(llm_url)

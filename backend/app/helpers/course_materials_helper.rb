@@ -1,0 +1,2 @@
+module CourseMaterialsHelper
+end

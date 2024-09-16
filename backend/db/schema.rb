@@ -10,10 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_08_28_150245) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_16_123009) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "vector"
+
+  create_table "course_materials", force: :cascade do |t|
+    t.vector "embedding", limit: 1536
+    t.text "data"
+    t.text "file_name"
+  end
 
   create_table "forum_data", force: :cascade do |t|
     t.vector "embedding", limit: 1536
