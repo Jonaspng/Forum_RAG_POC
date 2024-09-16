@@ -22,12 +22,99 @@ body {
   color: white;
   padding: 15px 20px;
   text-align: center;
+  display: flex;
+  align-items: center;
 }
 
 .App-header h1 {
   margin: 0;
   font-size: 24px;
   font-weight: 600;
+  flex-grow: 1;
+}
+
+.sidebar-toggle {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.main-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #f0f2f5;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: 1px solid #e4e6eb;
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+
+.sidebar h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1c1e21;
+}
+
+.file-upload-label {
+  display: inline-block;
+  padding: 10px 15px;
+  background-color: #e4e6eb;
+  color: #1c1e21;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.file-upload-label:hover {
+  background-color: #d8dadf;
+}
+
+.file-name {
+  margin: 10px 0;
+  font-size: 14px;
+  color: #65676b;
+  word-break: break-word;
+  max-width: 100%;
+  text-align: center;
+}
+
+.upload-button {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background-color: #e4e6eb;
+  color: #bcc0c4;
+  border: none;
+  border-radius: 6px;
+  cursor: not-allowed;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+
+.upload-button.active {
+  background-color: #0084ff;
+  color: white;
+  cursor: pointer;
+}
+
+.upload-button.active:hover {
+  background-color: #0070d8;
 }
 
 .chat-container {
@@ -36,6 +123,11 @@ body {
   padding: 20px 10px;
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.chat-container.sidebar-closed {
+  margin-left: -250px;
 }
 
 .message {
@@ -168,13 +260,13 @@ button svg {
 }
 
 .message-content .rc-md-editor pre {
-  background-color: #1e1e1e; /* Dark background */
+  background-color: #1e1e1e;
   border-radius: 6px;
   padding: 16px;
   overflow-x: auto;
   margin: 10px 0;
   max-width: 100%;
-  position: relative; /* For language label positioning */
+  position: relative;
 }
 
 .message-content .rc-md-editor code {
@@ -185,7 +277,7 @@ button svg {
 }
 
 .message-content .rc-md-editor pre code {
-  color: #d4d4d4; /* Light text color for contrast */
+  color: #d4d4d4;
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
   font-size: 14px;
   line-height: 1.5;
