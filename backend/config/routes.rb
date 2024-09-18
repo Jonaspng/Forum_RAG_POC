@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   post "upload_course_material", to: "course_materials#upload"
 
+  resources :queries, only: [:create]
+
   post "course_materials", to: 'course_materials#getdata'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   resources :forum_data, only: [:index, :getdata]

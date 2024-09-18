@@ -34,11 +34,11 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:3000/forum_data', {
-        question: input,
+      const response = await axios.post('http://localhost:3000/queries', {
+        query: input,
       });
       
-      const assistantMessage = response.data["openai/gpt-4o"].generated_text;
+      const assistantMessage = response.data["response"];
 
       setMessages((prevMessages) => [...prevMessages, { role: 'assistant', content: assistantMessage }]);
     } catch (error) {
@@ -51,22 +51,23 @@ function App() {
   const handleFileUpload = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
-
+    const userMessage = { role: 'user', content: `Uploaded file: ${file.name}` };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setIsLoading(true);
     try {
       const response = await axios.post('http://localhost:3000/upload_course_material', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-
-      const userMessage = { role: 'user', content: `Uploaded file: ${file.name}` };
-      console.log(response.data)
       const assistantMessage = { role: 'assistant', content: `File uploaded successfully: ${response.data.message}` };
-      setMessages((prevMessages) => [...prevMessages, userMessage, assistantMessage]);
+      setMessages((prevMessages) => [...prevMessages, assistantMessage]);
     } catch (error) {
       console.error('Error uploading file:', error);
       const errorMessage = { role: 'assistant', content: 'Error uploading file. Please try again.' };
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
