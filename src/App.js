@@ -5,15 +5,18 @@ import 'highlight.js/styles/vs2015.css';
 import './App.css';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import Sidebar from './components/Sidebar';
-import { Menu } from 'lucide-react';
+import { Menu, Paperclip, File, X } from 'lucide-react';
 
 function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   const messagesEndRef = useRef(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const inputRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const [filePreview, setFilePreview] = useState(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -26,21 +29,27 @@ function App() {
 
   const sendMessage = async (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() && !selectedFile) return;
 
-    const userMessage = { role: 'user', content: input };
+    let userMessage = { role: 'user', content: input };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setInput('');
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:3000/queries', {
-        query: input,
-      });
-      
-      const assistantMessage = response.data["response"];
+      if (selectedFile) {
+        await handleFileUpload(selectedFile);
+        setSelectedFile(null);
+      }
 
-      setMessages((prevMessages) => [...prevMessages, { role: 'assistant', content: assistantMessage }]);
+      if (input.trim()) {
+        const response = await axios.post('http://localhost:3000/queries', {
+          query: input,
+        });
+        
+        const assistantMessage = response.data["response"];
+        setMessages((prevMessages) => [...prevMessages, { role: 'assistant', content: assistantMessage }]);
+      }
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -51,9 +60,9 @@ function App() {
   const handleFileUpload = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
-    const userMessage = { role: 'user', content: `Uploaded file: ${file.name}` };
+    const userMessage = { role: 'user', content: `Attached file: ${file.name}` };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
-    setIsLoading(true);
+    
     try {
       const response = await axios.post('http://localhost:3000/upload_course_material', formData, {
         headers: {
@@ -66,13 +75,46 @@ function App() {
       console.error('Error uploading file:', error);
       const errorMessage = { role: 'assistant', content: 'Error uploading file. Please try again.' };
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+    
+    if (file) {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => setFilePreview(e.target.result);
+        reader.readAsDataURL(file);
+      } else {
+        setFilePreview(null);
+      }
+    } else {
+      setFilePreview(null);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
+  };
+
+  const removeSelectedFile = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' bytes';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / 1048576).toFixed(1) + ' MB';
   };
 
   return (
@@ -123,12 +165,39 @@ function App() {
           placeholder="Type a message..."
           disabled={isLoading}
         />
-        <button type="submit" disabled={isLoading || !input.trim()}>
+        <button type="button" onClick={triggerFileInput} disabled={isLoading}>
+          <Paperclip size={24} />
+        </button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: 'none' }}
+          onChange={handleFileSelect}
+        />
+        <button type="submit" disabled={isLoading || (!input.trim() && !selectedFile)}>
           <svg viewBox="0 0 24 24" width="24" height="24">
             <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
           </svg>
         </button>
       </form>
+      {selectedFile && (
+        <div className="file-preview">
+          {filePreview ? (
+            <img src={filePreview} alt="File preview" className="file-preview-image" />
+          ) : (
+            <div className="file-preview-icon">
+              <File size={30} />
+            </div>
+          )}
+          <div className="file-preview-details">
+            <span className="file-preview-name">{selectedFile.name}</span>
+            <span className="file-preview-size">{formatFileSize(selectedFile.size)}</span>
+          </div>
+          <button onClick={removeSelectedFile} className="file-preview-remove">
+            <X size={24} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
