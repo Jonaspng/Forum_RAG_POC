@@ -70,6 +70,37 @@ body {
   color: #1c1e21;
 }
 
+.chunking-options {
+  margin-top: 20px;
+}
+
+.chunking-options h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.chunking-options button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.chunking-options button:hover {
+  background-color: #e8e8e8;
+}
+
+.chunking-options button.active {
+  background-color: #2196F3;
+  color: white;
+  border-color: #2196F3;
+}
+
 .file-upload-label {
   display: inline-block;
   padding: 10px 15px;
@@ -127,7 +158,7 @@ body {
 }
 
 .chat-container.sidebar-closed {
-  margin-left: -250px;
+  margin-left: -200px;
 }
 
 .message {
@@ -161,6 +192,18 @@ body {
 .assistant .message-content {
   background-color: #e4e6eb;
   color: #1c1e21;
+}
+
+.message-content img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.message-image {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 8px;
 }
 
 .input-form {

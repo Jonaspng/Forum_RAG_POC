@@ -32,21 +32,28 @@ function App() {
     if (!input.trim() && !selectedFile) return;
 
     let userMessage = { role: 'user', content: input };
+    userMessage.image = filePreview;
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setInput('');
+    setSelectedFile(null);
+    setFilePreview(null);
     setIsLoading(true);
 
     try {
+
+      const formData = new FormData();
       if (selectedFile) {
-        await handleFileUpload(selectedFile);
-        setSelectedFile(null);
+        formData.append('file', selectedFile);
       }
+      formData.append('query', input);
 
       if (input.trim()) {
-        const response = await axios.post('http://localhost:3000/queries', {
-          query: input,
+        const response = await axios.post('http://localhost:3000/queries', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
-        
+
         const assistantMessage = response.data["response"];
         setMessages((prevMessages) => [...prevMessages, { role: 'assistant', content: assistantMessage }]);
       }
@@ -57,12 +64,14 @@ function App() {
     }
   };
 
-  const handleFileUpload = async (file) => {
+  const handleFileUpload = async (file, chunking_method) => {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('option', chunking_method)
     const userMessage = { role: 'user', content: `Attached file: ${file.name}` };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
-    
+    setIsLoading(true);
+
     try {
       const response = await axios.post('http://localhost:3000/upload_course_material', formData, {
         headers: {
@@ -75,6 +84,8 @@ function App() {
       console.error('Error uploading file:', error);
       const errorMessage = { role: 'assistant', content: 'Error uploading file. Please try again.' };
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -85,7 +96,7 @@ function App() {
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file);
-    
+
     if (file) {
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
@@ -117,6 +128,23 @@ function App() {
     else return (bytes / 1048576).toFixed(1) + ' MB';
   };
 
+  const renderMessage = (message, index) => {
+    return (
+      <div key={index} className={`message ${message.role}`}>
+        <div className="message-content">
+          {message.image && (
+            <img src={message.image} alt="Uploaded" className="message-image" />
+          )}
+          {message.role === 'user' ? (
+            <p>{message.content}</p>
+          ) : (
+            <MarkdownRenderer content={message.content} />
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -126,22 +154,12 @@ function App() {
         <h1>AI Chat</h1>
       </header>
       <div className="main-container">
-        <Sidebar 
-          onFileUpload={handleFileUpload} 
+        <Sidebar
+          onFileUpload={handleFileUpload}
           isOpen={isSidebarOpen}
         />
         <div className={`chat-container ${!isSidebarOpen ? 'sidebar-closed' : ''}`}>
-          {messages.map((message, index) => (
-            <div key={index} className={`message ${message.role}`}>
-              <div className="message-content">
-                {message.role === 'user' ? (
-                  <p>{message.content}</p>
-                ) : (
-                  <MarkdownRenderer content={message.content} />
-                )}
-              </div>
-            </div>
-          ))}
+          {messages.map(renderMessage)}
           {isLoading && (
             <div className="message assistant">
               <div className="message-content">
