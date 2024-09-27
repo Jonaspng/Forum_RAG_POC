@@ -9,9 +9,9 @@ class CourseMaterialsController < ApplicationController
     uploaded_file = params[:file]
     image_option = params[:option]
 
-    Rag::ChunkingService.initialize(uploaded_file)
+    chunking_service = Rag::ChunkingService.new(uploaded_file)
     if uploaded_file.content_type == "application/pdf"
-      Rag::ChunkingService.fixed_size_chunking(image_option)
+      chunking_service.fixed_size_chunking(image_option)
       render json: { message: "PDF processed successfully" }
     else
       render json: { error: "Invalid file format. Please upload a PDF." }, status: :unprocessable_entity
