@@ -81,7 +81,6 @@ function App() {
       const assistantMessage = { role: 'assistant', content: `File uploaded successfully: ${response.data.message}` };
       setMessages((prevMessages) => [...prevMessages, assistantMessage]);
     } catch (error) {
-      console.error('Error uploading file:', error);
       const errorMessage = { role: 'assistant', content: 'Error uploading file. Please try again.' };
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
     } finally {
@@ -145,6 +144,25 @@ function App() {
     );
   };
 
+  const onYoutubeLinkUpload = async (youtubeLink) => {
+    if (youtubeLink) {
+      const userMessage = { role: 'user', content: `Submitted Video Link: ${youtubeLink}` };
+      setMessages((prevMessages) => [...prevMessages, userMessage]);
+      setIsLoading(true);
+      try {
+        const response = await axios.post('http://localhost:3000/upload_video_captions', {
+          link: youtubeLink
+        });
+        console.log('YouTube captions uploaded:', response.data);
+      } catch (error) {
+        const errorMessage = { role: 'assistant', content: error.response.data.error };
+        setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -156,6 +174,7 @@ function App() {
       <div className="main-container">
         <Sidebar
           onFileUpload={handleFileUpload}
+          onLinkUpload={onYoutubeLinkUpload}
           isOpen={isSidebarOpen}
         />
         <div className={`chat-container ${!isSidebarOpen ? 'sidebar-closed' : ''}`}>

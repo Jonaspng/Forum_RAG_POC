@@ -447,3 +447,48 @@ button svg {
 .file-preview-remove:hover {
   color: #ff0000;
 }
+
+.sidebar h2 {
+  font-size: 18px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.youtube-link-input {
+  width: 100%;
+  flex-grow: 0;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #e4e6eb;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.upload-button {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.file-upload-label {
+  display: inline-block;
+  padding: 8px 12px;
+  background-color: #e4e6eb;
+  color: #1c1e21;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.upload-button.active {
+  background-color: #0084ff;
+  color: white;
+  cursor: pointer;
+}
+
+.upload-button.active:hover {
+  background-color: #0070d8;
+}
