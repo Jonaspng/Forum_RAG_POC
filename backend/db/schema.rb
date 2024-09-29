@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_16_123009) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_28_035001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "vector"
@@ -25,5 +25,11 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_16_123009) do
     t.vector "embedding", limit: 1536
     t.jsonb "data", default: {}
     t.index ["embedding"], name: "index_forum_data_on_embedding", opclass: :vector_cosine_ops, using: :hnsw
+  end
+
+  create_table "video_captions", force: :cascade do |t|
+    t.vector "embedding", limit: 1536
+    t.text "data"
+    t.text "video_name"
   end
 end

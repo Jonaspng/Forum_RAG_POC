@@ -7,36 +7,18 @@ class CourseMaterialsController < ApplicationController
 
   def upload
     uploaded_file = params[:file]
-    image_option = params[:option]
+    image_option = ActiveModel::Type::Boolean.new.cast(params[:option])
 
-    chunking_service = Rag::ChunkingService.new(uploaded_file)
-    if uploaded_file.content_type == "application/pdf"
-      chunking_service.fixed_size_chunking(image_option)
-      render json: { message: "PDF processed successfully" }
+    chunking_service = Rag::ChunkingService.new(file: uploaded_file)
+    chunks = chunking_service.file_chunking(image_option)
+    if chunks
+      for chunk in chunks
+        embedding = Rag::LlmService.generate_embedding(chunk)
+        CourseMaterial.create(embedding: embedding, data: chunk, file_name: uploaded_file.original_filename)
+      end
+      render json: { message: "#{File.extname(uploaded_file.original_filename)} file processed successfully" }
     else
-      render json: { error: "Invalid file format. Please upload a PDF." }, status: :unprocessable_entity
+      render json: { error: "Something went wrong while processing the file" }, status: :unprocessable_entity
     end
-  end
-
-  private
-
-  def extract_text_from_pdf(file_path)
-    reader = PDF::Reader.new(file_path)
-    reader.pages.map(&:text).join(" ")
-  end
-
-  def chunk_text(text, chunk_size, overlap_size)
-    chunks = []
-    start = 0
-
-    while start < text.length
-      # Define the chunk with overlap
-      chunk = text[start, chunk_size]
-      chunks << chunk
-
-      # Move the starting position forward, keeping the overlap
-      start += (chunk_size - overlap_size)
-    end
-    chunks
   end
 end

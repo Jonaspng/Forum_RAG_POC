@@ -1,0 +1,2 @@
+module VideoCaptionsHelper
+end
