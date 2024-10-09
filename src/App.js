@@ -68,7 +68,7 @@ function App() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('option', chunking_method)
-    const userMessage = { role: 'user', content: `Attached file: ${file.name}` };
+    const userMessage = { role: 'user', content: `Uploaded file: ${file.name}` };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setIsLoading(true);
 
@@ -78,10 +78,10 @@ function App() {
           'Content-Type': 'multipart/form-data',
         },
       });
-      const assistantMessage = { role: 'assistant', content: `File uploaded successfully: ${response.data.message}` };
+      const assistantMessage = { role: 'assistant', content: `Success: ${response.data.message}` };
       setMessages((prevMessages) => [...prevMessages, assistantMessage]);
     } catch (error) {
-      const errorMessage = { role: 'assistant', content: 'Error uploading file. Please try again.' };
+      const errorMessage = { role: 'assistant', content: error.response.data.error };
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
     } finally {
       setIsLoading(false);
@@ -153,7 +153,8 @@ function App() {
         const response = await axios.post('http://localhost:3000/upload_video_captions', {
           link: youtubeLink
         });
-        console.log('YouTube captions uploaded:', response.data);
+        const assistantMessage = { role: 'assistant', content: `Success: ${response.data.message}` };
+        setMessages((prevMessages) => [...prevMessages, assistantMessage]);
       } catch (error) {
         const errorMessage = { role: 'assistant', content: error.response.data.error };
         setMessages((prevMessages) => [...prevMessages, errorMessage]);

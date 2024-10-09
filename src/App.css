@@ -59,7 +59,7 @@ body {
 }
 
 .sidebar.closed {
-  transform: translateX(-100%);
+  transform: translateX(-300px);
 }
 
 .sidebar h2 {
