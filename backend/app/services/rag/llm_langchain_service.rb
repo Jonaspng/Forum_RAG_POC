@@ -2,7 +2,18 @@ require "base64"
 
 class Rag::LlmLangchainService
   def initialize
-    @client = Langchain_Openai
+    @client = LANGCHAIN_OPENAI
+
+    # Define Tools
+    course_materials_tool = Rag::Tools::CourseMaterialsTool.new
+    forum_posts_tool = Rag::Tools::ForumPostsTool.new
+    video_captions_tool = Rag::Tools::VideoCaptionsTool.new
+
+    @assistant = Langchain::Assistant.new(
+      llm: @client,
+      instructions: Langchain::Prompt.load_from_path(file_path: "app/services/rag/prompts/forum_assistant_system_prompt.json").format(character: "deadpool"),
+      tools: [forum_posts_tool, course_materials_tool, video_captions_tool],
+    )
   end
 
   def get_image_caption(image)
@@ -34,6 +45,20 @@ class Rag::LlmLangchainService
     response
   end
 
+  def get_assistant_response(query, file = nil)
+    image_caption = ""
+    if file
+      image_caption = "Attached Image caption: #{get_image_caption(file)}"
+    end
+
+    query = query + image_caption
+
+    @assistant.add_message_and_run!(content: query)
+
+    puts @assistant.messages.last.content
+    @assistant.messages.last.content
+  end
+
   def get_response(query, file = nil)
     image_caption = ""
     if file
@@ -49,7 +74,7 @@ class Rag::LlmLangchainService
     messages = [
       {
         "role": "system",
-        "content": Langchain::Prompt.load_from_path(file_path: "app/services/rag/prompts/prompt_template.json").format(character: "deadpool"),
+        "content": Langchain::Prompt.load_from_path(file_path: "app/services/rag/prompts/forum_assistant_system_prompt.json").format(character: "deadpool"),
       },
       {
         "role": "user",
@@ -60,6 +85,20 @@ class Rag::LlmLangchainService
     response = @client.chat(messages: messages).chat_completion
     puts response
     response
+  end
+
+  def generate_embeddings_from_chunks(chunks)
+    result = []
+    chunks.each_slice(10) do |chunk|
+      response = @client.embed(
+        text: chunk,
+        model: "text-embedding-ada-002",
+      )
+      for embedding in response.raw_response["data"]
+        result.push(embedding["embedding"])
+      end
+    end
+    result
   end
 
   private
@@ -83,5 +122,6 @@ class Rag::LlmLangchainService
     query_embedding = generate_embedding(query)
     data = CourseMaterial.get_nearest_neighbours(query_embedding).to_s
     data = "Below are a list of search results from the course material knowledge base:" + data
+    data
   end
 end

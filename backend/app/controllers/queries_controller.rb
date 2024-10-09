@@ -7,7 +7,7 @@ class QueriesController < ApplicationController
 
     llm_service = Rag::LlmLangchainService.new
 
-    final_response = llm_service.get_response(query, file)
+    final_response = llm_service.get_assistant_response(query, file)
 
     # Step 4: Send the final response back to the frontend
     render json: { response: final_response }

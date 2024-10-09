@@ -1,7 +1,7 @@
 if ENV["OPENAI_API_KEY"].present?
   require "langchain"
   # Create a global OpenAI client instance
-  Langchain_Openai = Langchain::LLM::OpenAI.new(
+  LANGCHAIN_OPENAI = Langchain::LLM::OpenAI.new(
     api_key: ENV["OPENAI_API_KEY"],
     default_options: { temperature: 0.5, chat_completion_model_name: "gpt-4o" },
   )
