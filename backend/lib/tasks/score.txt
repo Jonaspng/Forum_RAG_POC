@@ -1,0 +1,18 @@
+Fixed Size Chunking retrieval
+Who is the instructor in charge of this course?
+{:ragas_score=>0.46498863366270365, :answer_relevance_score=>0.6888140551085624, :context_relevance_score=>0.25, :faithfulness_score=>1.0}
+Fixed Size Chunking retrieval
+why do we use python in this course?
+{:ragas_score=>0.6768591440485237, :answer_relevance_score=>0.7455299704668458, :context_relevance_score=>1.0, :faithfulness_score=>0.4782608695652174}
+Fixed Size Chunking retrieval
+How should we format our answers for mission 0?.
+{:ragas_score=>0.18380924069373128, :answer_relevance_score=>0.7568483446503712, :context_relevance_score=>0.07142857142857142, :faithfulness_score=>1.0}
+HyDE Retrieval
+Who is the instructor in charge of this course?
+{:ragas_score=>0.8571078492043908, :answer_relevance_score=>0.6666031372009127, :context_relevance_score=>1.0, :faithfulness_score=>1.0}
+HyDE Retrieval
+why do we use python in this course?
+{:ragas_score=>0.20659826681063884, :answer_relevance_score=>0.6839423885272639, :context_relevance_score=>0.08333333333333333, :faithfulness_score=>0.9444444444444444}
+HyDE Retrieval
+How should we format our answers for mission 0?.
+{:ragas_score=>0.5040620545562761, :answer_relevance_score=>0.6444759998900468, :context_relevance_score=>0.29411764705882354, :faithfulness_score=>1.0}

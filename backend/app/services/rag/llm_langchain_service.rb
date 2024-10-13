@@ -95,9 +95,8 @@ class Rag::LlmLangchainService
 
     context = nearest_course_materials + nearest_forum_posts + nearest_video_captions
 
-    File.open("lib/tasks/output.txt", "w") do |file|
-      file.write(context.to_s)
-    end
+    @evaluation.context = context
+    @evaluation.question = query
 
     messages = [
       {
@@ -106,12 +105,12 @@ class Rag::LlmLangchainService
       },
       {
         "role": "user",
-        "content": "information from knowledge base:" + context.to_s + " user query: " + query + image_caption,
+        "content": context + " user query: " + query + image_caption,
       },
     ]
 
     response = @client.chat(messages: messages).chat_completion
-    puts response
+    @evaluation.answer = response
     response
   end
 
@@ -127,9 +126,8 @@ class Rag::LlmLangchainService
 
     context = nearest_course_materials + nearest_forum_posts + nearest_video_captions
 
-    File.open("lib/tasks/output.txt", "w") do |file|
-      file.write(context.to_s)
-    end
+    @evaluation.question = query
+    @evaluation.context = context
 
     messages = [
       {
@@ -138,12 +136,12 @@ class Rag::LlmLangchainService
       },
       {
         "role": "user",
-        "content": "information from knowledge base:" + context.to_s + " user query: " + query + image_caption,
+        "content": context + " user query: " + query + image_caption,
       },
     ]
 
     response = @client.chat(messages: messages).chat_completion
-    puts response
+    @evaluation.answer = response
     response
   end
 
@@ -173,22 +171,22 @@ class Rag::LlmLangchainService
 
   def get_forum_posts(query)
     query_embedding = generate_embedding(query)
-    data = ForumData.get_nearest_neighbours(query_embedding)
-    # data = "Below are a list of search results from the forum posts knowledge base:" + data
+    data = ForumData.get_nearest_neighbours(query_embedding).to_s
+    data = "Below are a list of search results from the forum posts knowledge base:" + data
     data
   end
 
   def get_course_materials(query)
     query_embedding = generate_embedding(query)
-    data = CourseMaterial.get_nearest_neighbours(query_embedding)
-    # data = "Below are a list of search results from the course materials knowledge base:" + data
+    data = CourseMaterial.get_nearest_neighbours(query_embedding).to_s
+    data = "Below are a list of search results from the course materials knowledge base:" + data
     data
   end
 
   def get_video_captions(query)
     query_embedding = generate_embedding(query)
-    data = VideoCaption.get_nearest_neighbours(query_embedding)
-    # data = "Below are a list of search results from the video captions knowledge base:" + data
+    data = VideoCaption.get_nearest_neighbours(query_embedding).to_s
+    data = "Below are a list of search results from the video captions knowledge base:" + data
     data
   end
 end
