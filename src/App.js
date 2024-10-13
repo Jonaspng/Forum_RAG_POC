@@ -27,6 +27,19 @@ function App() {
     inputRef.current.focus();
   }, []);
 
+  const evaluation_result_to_text = (data) => {
+    const faithfulness = data["faithfulness_score"]
+    const answerRelevance = data["answer_relevance_score"]
+    const contextRelevance = data["context_relevance_score"]
+
+    const text = `
+    context_relevance_score: ${contextRelevance}
+    answer_relevance_score: ${answerRelevance}
+    faithfulness_score ${faithfulness}
+    `
+    return text
+  }
+
   const sendMessage = async (e) => {
     e.preventDefault();
     if (!input.trim() && !selectedFile) return;
@@ -55,7 +68,9 @@ function App() {
         });
 
         const assistantMessage = response.data["response"];
+        const evaluation = evaluation_result_to_text(response.data["evaluation"])
         setMessages((prevMessages) => [...prevMessages, { role: 'assistant', content: assistantMessage }]);
+        setMessages((prevMessages) => [...prevMessages, { role: 'assistant', content: evaluation }])
       }
     } catch (error) {
       console.error('Error:', error);
