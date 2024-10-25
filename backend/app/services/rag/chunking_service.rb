@@ -52,7 +52,7 @@ class Rag::ChunkingService
 
   def extract_images(page_number)
     temp_dir = Dir.mktmpdir
-    Docsplit.extract_images(@file_path, density: 300, pages: [page_number], format: :png, output: temp_dir)
+    Docsplit.extract_images(@file_path, density: 300, pages: [ page_number ], format: :png, output: temp_dir)
     image_data = File.read(Dir.glob("#{temp_dir}/*.{png,jpg,jpeg,tiff}").first)
     slide_caption = Rag::LlmService.get_image_caption(image_data)
     FileUtils.remove_entry temp_dir

@@ -2,7 +2,7 @@ class Rag::Tools::ForumPostsTool
   extend Langchain::ToolDefinition
 
   define_function :get_forum_posts, description: "ForumPostsTool: Retrieve the video captions chunks that are semantically closest to the user query." do
-    property :user_query, type: "string", description: "user query", required: true
+    property :user_query, type: "string", description: "exact user query", required: true
   end
 
   def initialize(evaluation)
