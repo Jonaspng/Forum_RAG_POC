@@ -11,9 +11,9 @@ class VideoCaptionsController < ApplicationController
 
       chunking_service = Rag::ChunkingService.new(text: captions)
       chunks = chunking_service.text_chunking
-      for chunk in chunks
-        embedding = Rag::LlmService.generate_embedding(chunk)
-        VideoCaption.create(embedding: embedding, data: chunk, video_name: title)
+      embeddings = llm_service.generate_embeddings_from_chunks(chunks)
+      chunks.each_with_index do |chunk, index|
+        VideoCaption.create(embedding: embeddings[index], data: chunk, video_name: title)
       end
       render json: { message: "Video has been processed successfully" }
     rescue StandardError => e
