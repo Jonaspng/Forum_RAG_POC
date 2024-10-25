@@ -5,6 +5,7 @@ import 'highlight.js/styles/vs2015.css';
 import './App.css';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import Sidebar from './components/Sidebar';
+import EvaluationBar from './components/EvaluationBar'
 import { Menu, Paperclip, File, X } from 'lucide-react';
 
 function App() {
@@ -53,7 +54,6 @@ function App() {
     setIsLoading(true);
 
     try {
-
       const formData = new FormData();
       if (selectedFile) {
         formData.append('file', selectedFile);
@@ -68,9 +68,10 @@ function App() {
         });
 
         const assistantMessage = response.data["response"];
-        const evaluation = evaluation_result_to_text(response.data["evaluation"])
+        const evaluation = response.data["evaluation"]
+        console.log(response.data["evaluation"])
         setMessages((prevMessages) => [...prevMessages, { role: 'assistant', content: assistantMessage }]);
-        setMessages((prevMessages) => [...prevMessages, { role: 'assistant', content: evaluation }])
+        setMessages((prevMessages) => [...prevMessages, { role: 'assistant_evaluation', content: evaluation }])
       }
     } catch (error) {
       console.error('Error:', error);
@@ -143,17 +144,24 @@ function App() {
   };
 
   const renderMessage = (message, index) => {
+    console.log(message);
     return (
-      <div key={index} className={`message ${message.role}`}>
+      <div key={index} className={`message ${message.role === 'assistant_evaluation' ? 'assistant' : message.role}`}>
         <div className="message-content">
           {message.image && (
             <img src={message.image} alt="Uploaded" className="message-image" />
           )}
           {message.role === 'user' ? (
             <p>{message.content}</p>
-          ) : (
-            <MarkdownRenderer content={message.content} />
-          )}
+          ) : message.role === 'assistant_evaluation' ? (
+            <div>
+              <EvaluationBar value={message.content['answer_relevance_score'] * 100} name='Answer Relevance Score' />
+              <EvaluationBar value={message.content['faithfulness_score'] * 100} name='Faithfulness Score' />
+            </div>
+          ) :
+            (
+              <MarkdownRenderer content={message.content} />
+            )}
         </div>
       </div>
     );
