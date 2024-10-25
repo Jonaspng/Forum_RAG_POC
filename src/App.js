@@ -35,7 +35,7 @@ function App() {
     const text = `
     context_relevance_score: ${contextRelevance}
     answer_relevance_score: ${answerRelevance}
-    faithfulness_score ${faithfulness}
+    faithfulness_score: ${faithfulness}
     `
     return text
   }
