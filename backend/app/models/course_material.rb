@@ -17,7 +17,7 @@ class CourseMaterial < ApplicationRecord
     filtered_data
   end
 
-  def self.get_course_materials_list()
+  def self.get_course_materials_list
     CourseMaterial.select(:file_name).distinct.pluck(:file_name)
   end
 end
